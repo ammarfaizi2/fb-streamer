@@ -161,7 +161,7 @@ class Streamer
     start_curl:
     $headers = [];
     $optf = [
-      CURLOPT_VERBOSE => 1,
+      // CURLOPT_VERBOSE => 1,
       CURLOPT_ENCODING => "gzip",
       CURLOPT_USERAGENT => $this->userAgent,
       CURLOPT_RETURNTRANSFER => true,
