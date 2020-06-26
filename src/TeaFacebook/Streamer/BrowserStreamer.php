@@ -330,7 +330,7 @@ final class BrowserStreamer extends Streamer
     if (preg_match_all("/href=\"(.+?)\"/si", $body, $m)) {
       foreach ($m[0] as $k => $v) {
         if (substr($m[1][$k], 0, 11) === "javascript") continue;
-        if (preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $v, $mm) &&
+        if (preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $m[1][$k], $mm) &&
             ($mm[1] !== $this->preferredDomain))
         {
           $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
@@ -348,7 +348,7 @@ final class BrowserStreamer extends Streamer
     if (preg_match_all("/action=\"(.+?)\"/si", $body, $m)) {
       foreach ($m[0] as $k => $v) {
         if (substr($m[1][$k], 0, 11) === "javascript") continue;
-        if (preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $v, $mm) &&
+        if (preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $m[1][$k], $mm) &&
             ($mm[1] !== $this->preferredDomain))
         {
           $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
@@ -362,13 +362,13 @@ final class BrowserStreamer extends Streamer
         }
       }
       var_dump($r1, $r2);
-      var_dump($m, $mm, preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $v, $mm), "/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s");die;
+      var_dump($m, $mm, preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $m[1][$k], $mm), "/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s");die;
     }
 
     if (preg_match_all("/src=\"(.+?)\"/si", $body, $m)) {
       foreach ($m[0] as $k => $v) {
         if (substr($m[1][$k], 0, 11) === "javascript") continue;
-        if (preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $v, $mm) &&
+        if (preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $m[1][$k], $mm) &&
               ($mm[1] !== $this->preferredDomain))
         {
           $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
