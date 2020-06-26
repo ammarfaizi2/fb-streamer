@@ -18,10 +18,9 @@ try {
     __DIR__."/../storage/cookies/".$user.".txt"
   );
 
-  // $st->setProxy("68.183.184.174:64500", CURLPROXY_SOCKS5_HOSTNAME);
-  // $st->setUseOnion(true);
-
-  $st->stream();
+  $st->setProxy("68.183.184.174:64500", CURLPROXY_SOCKS5_HOSTNAME);
+  $st->setUseOnion(true);
+  $st->stream(true);
 
 } catch (Exception $e) {
   header("Content-Type: text/plain");
