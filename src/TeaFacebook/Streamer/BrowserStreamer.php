@@ -57,7 +57,7 @@ final class BrowserStreamer extends Streamer
   /**
    * @var string
    */
-  private $allowedHostsPat = "(.+\.?(?:(?:fbcdn.net)|(?:facebook(?:\.com)|(?:corewwwi\.onion))))";
+  private $allowedHostsPat = "(.+\.?(?:(?:fbcdn(?:(?:\.net)|(?:.+\.onion))|(?:facebook(?:\.com)|(?:corewwwi\.onion)))))";
 
   /**
    * @param bool $b
@@ -86,7 +86,11 @@ final class BrowserStreamer extends Streamer
     }
 
     $this->baseUrl = "https://".$this->preferredDomain;
-    $this->fullRouter = $fullRouter;
+    if (isset($_GET["____drop_full_router"]) && $_GET["____drop_full_router"]) {
+      $this->fullRouter = false;
+    } else {
+      $this->fullRouter = $fullRouter;
+    }
     $this->getRequest();
     $this->forwardRequest();
     $this->forwardResponse();
@@ -268,7 +272,23 @@ final class BrowserStreamer extends Streamer
     $fbase = rtrim($this->baseUrl, "/")."/";
 
     if ($this->fullRouter) {
+
+      if (preg_match_all("/src=\"(.+?)\"/si", $body, $m)) {
+        foreach ($m[0] as $k => $v) {
+          if (substr($m[1][$k], 0, 11) === "javascript") {
+            continue;
+          }
+          $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
+          if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
+            $tmpR2 = substr($tmpR2, 1);
+          }
+          $r1[] = $v;
+          $r2[] = "src=\"".ecq("/?{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"&____drop_full_router=1";
+        }
+      }
+
       return (string)str_replace($fbase, "/", $body);
+
     } else {
       $r1 = $r2 = [];
       if (preg_match_all("/href=\"(.+?)\"/si", $body, $m)) {
@@ -286,6 +306,20 @@ final class BrowserStreamer extends Streamer
       }
 
       if (preg_match_all("/action=\"(.+?)\"/si", $body, $m)) {
+        foreach ($m[0] as $k => $v) {
+          if (substr($m[1][$k], 0, 11) === "javascript") {
+            continue;
+          }
+          $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
+          if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
+            $tmpR2 = substr($tmpR2, 1);
+          }
+          $r1[] = $v;
+          $r2[] = "action=\"".ecq("/?{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"";
+        }
+      }
+
+      if (preg_match_all("/src=\"(.+?)\"/si", $body, $m)) {
         foreach ($m[0] as $k => $v) {
           if (substr($m[1][$k], 0, 11) === "javascript") {
             continue;
