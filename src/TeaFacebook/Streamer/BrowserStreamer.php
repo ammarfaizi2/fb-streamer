@@ -273,6 +273,9 @@ final class BrowserStreamer extends Streamer
 
     if ($this->fullRouter) {
 
+      $r1 = [$fbase];
+      $r2 = ["/"];
+
       if (preg_match_all("/src=\"(.+?)\"/si", $body, $m)) {
         foreach ($m[0] as $k => $v) {
           if (substr($m[1][$k], 0, 11) === "javascript") {
@@ -287,7 +290,7 @@ final class BrowserStreamer extends Streamer
         }
       }
 
-      return (string)str_replace($fbase, "/", $body);
+      return (string)str_replace($r1, $r2, $body);
 
     } else {
       $r1 = $r2 = [];
