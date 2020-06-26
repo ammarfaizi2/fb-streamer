@@ -13,6 +13,7 @@ Logger::addLogHandler(
 
 file_put_contents(__DIR__."/log_dt.txt", json_encode(
   [
+    "method" => $_SERVER["REQUEST_METHOD"],
     "_POST" => $_POST,
     "_GET" => $_GET,
     "uri" => $_SERVER["REQUEST_URI"],
