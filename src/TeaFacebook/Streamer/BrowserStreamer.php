@@ -359,6 +359,7 @@ final class BrowserStreamer extends Streamer
           )."\"";
         }
       }
+      var_dump($m, $mm);die;
     }
 
     if (preg_match_all("/src=\"(.+?)\"/si", $body, $m)) {
