@@ -158,7 +158,7 @@ final class BrowserStreamer extends Streamer
       CURLOPT_HTTPHEADER => $headers
     ];
 
-    if ($this->req["method"] != "GET") {
+    if ($_SERVER["REQUEST_METHOD"] != "GET") {
       if (isset($reqHdr["Content-Type"]) &&
         (substr($reqHdr["Content-Type"], 0, 19) === "multipart/form-data")) {
 

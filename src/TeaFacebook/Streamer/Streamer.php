@@ -131,7 +131,7 @@ class Streamer
    */
   public function setSslVerifyPeer(bool $verify)
   {
-    $this->sslVerifyHost = $verify;
+    $this->sslVerifyPeer = $verify;
   }
 
   /**
@@ -166,7 +166,7 @@ class Streamer
       CURLOPT_USERAGENT => $this->userAgent,
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_SSL_VERIFYPEER => $this->sslVerifyPeer,
-      CURLOPT_SSL_VERIFYHOST => $this->sslVerifiHost,
+      CURLOPT_SSL_VERIFYHOST => $this->sslVerifyHost,
       CURLOPT_HEADERFUNCTION =>
         function ($ch, $str) use (&$headers) {
           $len = strlen($str);
