@@ -362,7 +362,7 @@ final class BrowserStreamer extends Streamer
         }
       }
       var_dump($r1, $r2);
-      var_dump($m, $mm);die;
+      var_dump($m, $mm, preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $v, $mm), "/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s");die;
     }
 
     if (preg_match_all("/src=\"(.+?)\"/si", $body, $m)) {
