@@ -260,83 +260,125 @@ final class BrowserStreamer extends Streamer
       http_response_code($this->o["info"]["http_code"]);
     }
 
-    echo $this->cleanUpBody($this->o["out"]);
+    echo $this->fullRouter ? $this->cleanUpFullRouter($o["out"]) : $this->cleanUpQueryRouter($o["out"]);
   }
 
   /**
    * @param string $body
    * @return string
    */
-  private function cleanUpBody(string $body): string
+  private function cleanUpQueryRouter(string $body): string
+  {
+    $r1 = $r2 = [];
+    if (preg_match_all("/href=\"(.+?)\"/si", $body, $m)) {
+      foreach ($m[0] as $k => $v) {
+        if (substr($m[1][$k], 0, 11) === "javascript") {
+          continue;
+        }
+        $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
+        if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
+          $tmpR2 = substr($tmpR2, 1);
+        }
+        $r1[] = $v;
+        $r2[] = "href=\"".ecq("/?{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"";
+      }
+    }
+
+    if (preg_match_all("/action=\"(.+?)\"/si", $body, $m)) {
+      foreach ($m[0] as $k => $v) {
+        if (substr($m[1][$k], 0, 11) === "javascript") {
+          continue;
+        }
+        $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
+        if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
+          $tmpR2 = substr($tmpR2, 1);
+        }
+        $r1[] = $v;
+        $r2[] = "action=\"".ecq("/?{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"";
+      }
+    }
+
+    if (preg_match_all("/src=\"(.+?)\"/si", $body, $m)) {
+      foreach ($m[0] as $k => $v) {
+        if (substr($m[1][$k], 0, 11) === "javascript") {
+          continue;
+        }
+        $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
+        if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
+          $tmpR2 = substr($tmpR2, 1);
+        }
+        $r1[] = $v;
+        $r2[] = "action=\"".ecq("/?{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"";
+      }
+    }
+
+    return (string)str_replace($r1, $r2, $body);
+  }
+
+  /**
+   * @param string $body
+   * @return string
+   */
+  private function cleanUpFullRouter(string $body): string
   {
     $fbase = rtrim($this->baseUrl, "/")."/";
+    $r1 = [$fbase];
+    $r2 = ["/"];
 
-    if ($this->fullRouter) {
-
-      $r1 = [$fbase];
-      $r2 = ["/"];
-
-      if (preg_match_all("/src=\"(.+?)\"/si", $body, $m)) {
-        foreach ($m[0] as $k => $v) {
-          if (substr($m[1][$k], 0, 11) === "javascript") {
-            continue;
-          }
+    if (preg_match_all("/href=\"(.+?)\"/si", $body, $m)) {
+      foreach ($m[0] as $k => $v) {
+        if (substr($m[1][$k], 0, 11) === "javascript") continue;
+        if (preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $v, $mm) &&
+            ($mm[1] !== $this->preferredDomain))
+        {
           $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
           if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
             $tmpR2 = substr($tmpR2, 1);
           }
           $r1[] = $v;
-          $r2[] = "src=\"".ecq("/?____drop_full_router=1&{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"";
+          $r2[] = "href=\"".ecq(
+            "/?____drop_full_router=1&{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2))
+          )."\"";
         }
       }
-
-      return (string)str_replace($r1, $r2, $body);
-
-    } else {
-      $r1 = $r2 = [];
-      if (preg_match_all("/href=\"(.+?)\"/si", $body, $m)) {
-        foreach ($m[0] as $k => $v) {
-          if (substr($m[1][$k], 0, 11) === "javascript") {
-            continue;
-          }
-          $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
-          if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
-            $tmpR2 = substr($tmpR2, 1);
-          }
-          $r1[] = $v;
-          $r2[] = "href=\"".ecq("/?{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"";
-        }
-      }
-
-      if (preg_match_all("/action=\"(.+?)\"/si", $body, $m)) {
-        foreach ($m[0] as $k => $v) {
-          if (substr($m[1][$k], 0, 11) === "javascript") {
-            continue;
-          }
-          $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
-          if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
-            $tmpR2 = substr($tmpR2, 1);
-          }
-          $r1[] = $v;
-          $r2[] = "action=\"".ecq("/?{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"";
-        }
-      }
-
-      if (preg_match_all("/src=\"(.+?)\"/si", $body, $m)) {
-        foreach ($m[0] as $k => $v) {
-          if (substr($m[1][$k], 0, 11) === "javascript") {
-            continue;
-          }
-          $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
-          if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
-            $tmpR2 = substr($tmpR2, 1);
-          }
-          $r1[] = $v;
-          $r2[] = "action=\"".ecq("/?{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"";
-        }
-      }
-
-      return (string)str_replace($r1, $r2, $body);
     }
+
+    if (preg_match_all("/action=\"(.+?)\"/si", $body, $m)) {
+      foreach ($m[0] as $k => $v) {
+        if (substr($m[1][$k], 0, 11) === "javascript") continue;
+        if (preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $v, $mm) &&
+            ($mm[1] !== $this->preferredDomain))
+        {
+          $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
+          if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
+            $tmpR2 = substr($tmpR2, 1);
+          }
+          $r1[] = $v;
+          $r2[] = "action=\"".ecq(
+            "/?____drop_full_router=1&{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2))
+          )."\"";
+        }
+      }
+    }
+
+    if (preg_match_all("/src=\"(.+?)\"/si", $body, $m)) {
+      foreach ($m[0] as $k => $v) {
+        if (substr($m[1][$k], 0, 11) === "javascript") continue;
+        if (preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $v, $mm) &&
+              ($mm[1] !== $this->preferredDomain))
+        {
+          $tmpR2 = edq(str_replace($fbase, "/", $m[1][$k]));
+          if (($tmpR2[0] == "/") && ($tmpR2[1] == "/")) {
+            $tmpR2 = substr($tmpR2, 1);
+          }
+          $r1[] = $v;
+          $r2[] = "src=\"".ecq(
+            "/?____drop_full_router=1&{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2))
+          )."\"";
+        }
+      }
+    }
+
+    return (string)str_replace($r1, $r2, $body);
   }
 }
