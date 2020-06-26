@@ -260,7 +260,9 @@ final class BrowserStreamer extends Streamer
       http_response_code($this->o["info"]["http_code"]);
     }
 
-    echo $this->fullRouter ? $this->cleanUpFullRouter($o["out"]) : $this->cleanUpQueryRouter($o["out"]);
+    echo $this->fullRouter ?
+      $this->cleanUpFullRouter($this->o["out"]) :
+      $this->cleanUpQueryRouter($this->o["out"]);
   }
 
   /**
