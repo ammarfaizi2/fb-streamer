@@ -44,14 +44,14 @@ class Streamer
   protected $connectTimeout = 30;
 
   /**
-   * @var bool
+   * @var int
    */
-  protected $sslVerifyPeer = true;
+  protected $sslVerifyPeer = 1;
 
   /**
-   * @var bool
+   * @var int
    */
-  protected $sslVerifyHost = true;
+  protected $sslVerifyHost = 2;
 
   /**
    * @var string
@@ -117,19 +117,19 @@ class Streamer
   }
 
   /**
-   * @param bool $verify
+   * @param int $verify
    * @return void
    */
-  public function setSslVerifyHost(bool $verify)
+  public function setSslVerifyHost(int $verify)
   {
     $this->sslVerifyHost = $verify;
   }
 
   /**
-   * @param bool $verify
+   * @param int $verify
    * @return void
    */
-  public function setSslVerifyPeer(bool $verify)
+  public function setSslVerifyPeer(int $verify)
   {
     $this->sslVerifyPeer = $verify;
   }
