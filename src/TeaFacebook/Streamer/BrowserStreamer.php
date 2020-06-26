@@ -55,6 +55,11 @@ final class BrowserStreamer extends Streamer
   private $filesToBeDeleted = [];
 
   /**
+   * @var string
+   */
+  private $allowedHostsPat = "(.+\.?(?:(?:fbcdn.net)|(?:facebook(?:\.com)|(?:corewwwi\.onion))))";
+
+  /**
    * @param bool $b
    * @return void
    */
@@ -195,8 +200,23 @@ final class BrowserStreamer extends Streamer
    */
   private function forwardRequest(): void
   {
-    // var_dump($this->req);die;
-    $this->o = $this->curl($this->req["uri"], $this->req["opt"]);
+    // var_dump($this->req["uri"]);die;
+    if (filter_var($this->req["uri"], FILTER_VALIDATE_URL)) {
+      $pr = parse_url($this->req["uri"]);
+      if (isset($pr["host"]) && preg_match("/^{$this->allowedHostsPat}/", $pr["host"])) {
+        $this->o = $this->curl($this->req["uri"], $this->req["opt"]);
+      } else {
+        $this->o = [
+          "out" => "Invalid URL",
+          "hdr" => ["Content-Type" => "text/plain"],
+          "err" => false,
+          "ern" => 0,
+          "info" => []
+        ];
+      }
+    } else {
+      $this->o = $this->curl($this->req["uri"], $this->req["opt"]);
+    }
   }
 
   /**
@@ -222,7 +242,7 @@ final class BrowserStreamer extends Streamer
       }
 
       if ($k === "location") {
-        if (preg_match("/^https?:\/\/(.+\.((?:facebook\.com)|(?:facebookcorewwwi.onion))((?:\/(.*))|$)/s", $v, $m)) {
+        if (preg_match("/^https?:\/\/{$this->allowedHostsPat}((?:\/(.*))|$)/s", $v, $m)) {
           if ($m[1] !== $this->preferredDomain) {
             setcookie("preferred_domain", $m[1], time() + 3600, "/");
           }
@@ -232,7 +252,9 @@ final class BrowserStreamer extends Streamer
       header("{$k}: {$v}");
     }
 
-    http_response_code($this->o["info"]["http_code"]);
+    if (isset($this->o["info"]["http_code"])) {
+      http_response_code($this->o["info"]["http_code"]);
+    }
 
     echo $this->cleanUpBody($this->o["out"]);
   }
@@ -248,8 +270,7 @@ final class BrowserStreamer extends Streamer
     if ($this->fullRouter) {
       return (string)str_replace($fbase, "/", $body);
     } else {
-      $r1 = [];
-      $r2 = [];
+      $r1 = $r2 = [];
       if (preg_match_all("/href=\"(.+?)\"/si", $body, $m)) {
         foreach ($m[0] as $k => $v) {
           if (substr($m[1][$k], 0, 11) === "javascript") {
