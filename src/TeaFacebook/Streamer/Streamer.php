@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace TeaFacebook\Streamer;
 
 use TeaFacebook\Streamer\Exceptions\StreamerException;
@@ -136,6 +137,7 @@ final class Streamer
       $uri = $this->baseUrl."/".ltrim($uri, "/");
     }
 
+    start_curl:
     $headers = [];
     $optf = [
       CURLOPT_ENCODING => "gzip",
@@ -143,17 +145,18 @@ final class Streamer
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_SSL_VERIFYPEER => $this->sslVerifyPeer,
       CURLOPT_SSL_VERIFYHOST => $this->sslVerifiHost,
-      CURLOPT_HEADERFUNCTION => function ($ch, $str) use (&$headers) {
-        $len = strlen($str);
-        if ($len < 2) return $len; // skip invalid header.
+      CURLOPT_HEADERFUNCTION =>
+        function ($ch, $str) use (&$headers) {
+          $len = strlen($str);
+          if ($len < 2) return $len; // skip invalid header.
 
-        $str = explode(":", $str, 2);
-        if (count($str) > 1) {
-          $headers[strtolower(trim($str[0]))] = trim($str[1]);
-        }
+          $str = explode(":", $str, 2);
+          if (count($str) > 1) {
+            $headers[strtolower(trim($str[0]))] = trim($str[1]);
+          }
 
-        return $len;
-      },
+          return $len;
+        },
       CURLOPT_COOKIEJAR => $this->cookieFile,
       CURLOPT_COOKIEFILE => $this->cookieFile,
     ];
@@ -162,6 +165,7 @@ final class Streamer
       $optf[$k] = $v;
     }
 
+    Logger::log(3, "Curl to \"%s\"...", $uri);
     $ch = curl_init($uri);
     curl_setopt_array($ch, $optf);
     $o = [
@@ -174,8 +178,10 @@ final class Streamer
     curl_close($ch);
 
     if ($o["err"]) {
+      Logger::log(1, "Curl Error [%d]: (%d) %s [url: %s]",
+        $retryCounter++, $o["ern"], $o["err"], $uri);
       if ($retryCounter < $this->maxRetry) {
-        
+        goto start_curl;
       }
     }
 

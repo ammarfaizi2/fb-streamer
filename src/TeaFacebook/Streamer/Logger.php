@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace TeaFacebook\Streamer;
 
 /**
@@ -16,6 +17,11 @@ final class Logger
   private static $logHandler = [];
 
   /**
+   * @var int
+   */
+  private static $logLevel = 5;
+
+  /**
    * @param resource $handle
    * @return void
    */
@@ -25,14 +31,41 @@ final class Logger
   }
 
   /**
+   * @param int $level
+   * @return void
+   */
+  public static function setLogLevel(int $level): void
+  {
+    self::$logLevel = $level;
+  }
+
+  /**
+   * @param int    $logLevel
    * @param string $format
    * @param mixed  ...$args
    * @return void
    */
-  public static function log(string $format, ...$args): void
+  public static function log(int $logLevel, string $format, ...$args): void
   {
-    foreach (self::$logHandler as $handler) {
-      fprintf($handler, $format, ...$args);
+    if (self::$logHandler && ($logLevel <= self::$logLevel)) {
+      $str = "[".date("Y-m-d H:i:s")."] ".sprintf($format, ...$args)."\n";
+
+      foreach (self::$logHandler as $handler) {
+        fwrite($handler, $str);
+      }
+    }
+  }
+
+  /**
+   * @return void
+   */
+  public static function close(): void
+  {
+    if (self::$logHandler) {
+      foreach (self::$logHandler as $k => $handler) {
+        fclose($handler);
+        unset(self::$logHandler[$k]);
+      }
     }
   }
 }
