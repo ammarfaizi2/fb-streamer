@@ -286,7 +286,7 @@ final class BrowserStreamer extends Streamer
             $tmpR2 = substr($tmpR2, 1);
           }
           $r1[] = $v;
-          $r2[] = "src=\"".ecq("/?{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"&____drop_full_router=1";
+          $r2[] = "src=\"".ecq("/?____drop_full_router=1&{$this->urlQuery}=".rawurlencode(rawurlencode($tmpR2)))."\"";
         }
       }
 
