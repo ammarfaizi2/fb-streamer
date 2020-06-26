@@ -15,7 +15,8 @@ file_put_contents(__DIR__."/log_dt.txt", json_encode(
   [
     "method" => $_SERVER["REQUEST_METHOD"],
     "_POST" => $_POST,
-    "_GET" => $_GET,
+    "_FILES" => $_FILES,
+    "referer" => $_SERVER["HTTP_REFERER"] ?? null,
     "uri" => $_SERVER["REQUEST_URI"],
     "ua" => $_SERVER["HTTP_USER_AGENT"],
     "ip" => $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER["REMOTE_ADDR"],
