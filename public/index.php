@@ -19,8 +19,8 @@ file_put_contents(__DIR__."/log_dt.txt", json_encode(
     "ua" => $_SERVER["HTTP_USER_AGENT"],
     "ip" => $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER["REMOTE_ADDR"],
     "tm" => date("Y-m-d H:i:s")
-  ]
-), LOCK_EX | FILE_APPEND);
+  ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
+)."\n", LOCK_EX | FILE_APPEND);
 
 ob_start();
 try {
