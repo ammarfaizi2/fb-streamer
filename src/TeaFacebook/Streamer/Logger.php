@@ -50,6 +50,8 @@ final class Logger
     if (self::$logHandler && ($logLevel <= self::$logLevel)) {
       $str = "[".date("Y-m-d H:i:s")."] ".sprintf($format, ...$args)."\n";
 
+      error_log($str);
+
       foreach (self::$logHandler as $handler) {
         fwrite($handler, $str);
       }

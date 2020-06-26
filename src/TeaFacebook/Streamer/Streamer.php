@@ -11,47 +11,57 @@ use TeaFacebook\Streamer\Exceptions\StreamerException;
  * @version 0.0.1
  * @package \TeaFacebook\Streamer
  */
-final class Streamer
+class Streamer
 {
   /**
    * @var string
    */
-  private $baseUrl = "https://m.facebook.com";
+  protected $baseUrl = "https://m.facebook.com";
 
   /**
    * @var string
    */
-  private $userAgent = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0";
+  protected $userAgent = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0";
 
   /**
    * @var string
    */
-  private $cookieFile;
+  protected $cookieFile;
 
   /**
    * @var int
    */
-  private $maxRetry = 3;
+  protected $maxRetry = 3;
 
   /**
    * @var int
    */
-  private $timeout = 30;
+  protected $timeout = 30;
 
   /**
    * @var int
    */
-  private $connectTimeout = 30;
+  protected $connectTimeout = 30;
 
   /**
    * @var bool
    */
-  private $sslVerifyPeer = true;
+  protected $sslVerifyPeer = true;
 
   /**
    * @var bool
    */
-  private $sslVerifyHost = true;
+  protected $sslVerifyHost = true;
+
+  /**
+   * @var string
+   */
+  protected $proxy;
+
+  /**
+   * @var int
+   */
+  protected $proxyType = -1;
 
   /**
    * @param string $cookieFile
@@ -125,6 +135,17 @@ final class Streamer
   }
 
   /**
+   * @param string $proxy
+   * @param int    $proxyType
+   * @return void
+   */
+  public function setProxy(string $proxy, int $proxyType = -1): void
+  {
+    $this->proxy = $proxy;
+    $this->proxyType = $proxyType;
+  }
+
+  /**
    * @param string $uri
    * @param array  $opt
    * @return ?array
@@ -140,6 +161,7 @@ final class Streamer
     start_curl:
     $headers = [];
     $optf = [
+      CURLOPT_VERBOSE => 1,
       CURLOPT_ENCODING => "gzip",
       CURLOPT_USERAGENT => $this->userAgent,
       CURLOPT_RETURNTRANSFER => true,
@@ -160,6 +182,13 @@ final class Streamer
       CURLOPT_COOKIEJAR => $this->cookieFile,
       CURLOPT_COOKIEFILE => $this->cookieFile,
     ];
+
+    if (isset($this->proxy)) {
+      $optf[CURLOPT_PROXY] = $this->proxy;
+      if ($this->proxyType !== -1) {
+        $optf[CURLOPT_PROXYTYPE] = $this->proxyType;
+      }
+    }
 
     foreach ($opt as $k => $v) {
       $optf[$k] = $v;
