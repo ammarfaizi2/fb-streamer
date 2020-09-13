@@ -271,6 +271,7 @@ final class BrowserStreamer extends Streamer
    */
   private function cleanUpQueryRouter(string $body): string
   {
+    $fbase = rtrim($this->baseUrl, "/")."/";
     $r1 = $r2 = [];
     if (preg_match_all("/href=\"(.+?)\"/si", $body, $m)) {
       foreach ($m[0] as $k => $v) {
