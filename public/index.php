@@ -5,7 +5,7 @@ require __DIR__."/../src/autoload.php";
 use TeaFacebook\Streamer\Logger;
 use TeaFacebook\Streamer\BrowserStreamer;
 
-$subHost = explode("-fb.", $subHost);
+$subHost = explode("-fb.", $_SERVER["HTTP_HOST"]);
 if (count($subHost) < 2) {
   $user = "default";
 } else {
